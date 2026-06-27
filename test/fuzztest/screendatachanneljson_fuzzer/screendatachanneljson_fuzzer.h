@@ -16,6 +16,6 @@
 #ifndef SCREENDATACHANNELJSON_FUZZER_H
 #define SCREENDATACHANNELJSON_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "screendatachanneljson_fuzzer"
+#define FUZZ_PROJECT_NAME ("screendatachanneljson_fuzzer")
 
 #endif // SCREENDATACHANNELJSON_FUZZER_H

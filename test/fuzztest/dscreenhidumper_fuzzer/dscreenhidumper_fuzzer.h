@@ -16,6 +16,6 @@
 #ifndef DSCREENHIDUMPER_FUZZER_H
 #define DSCREENHIDUMPER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "dscreenhidumper_fuzzer"
+#define FUZZ_PROJECT_NAME ("dscreenhidumper_fuzzer")
 
 #endif // DSCREENHIDUMPER_FUZZER_H

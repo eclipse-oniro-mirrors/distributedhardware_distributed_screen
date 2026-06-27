@@ -16,6 +16,6 @@
 #ifndef SOFTBUSPERMISSION_FUZZER_H
 #define SOFTBUSPERMISSION_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "softbuspermission_fuzzer"
+#define FUZZ_PROJECT_NAME ("softbuspermission_fuzzer")
 
 #endif // SOFTBUSPERMISSION_FUZZER_H

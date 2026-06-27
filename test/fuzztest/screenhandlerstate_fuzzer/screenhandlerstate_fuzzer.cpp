@@ -27,8 +27,8 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define SHSTATE_FUZZ_MAX_STRING_LENGTH 128
-#define SHSTATE_FUZZ_FUZZ_SUCCESS 0
+#define SHSTATE_FUZZ_MAX_STRING_LENGTH (128)
+#define SHSTATE_FUZZ_FUZZ_SUCCESS (0)
 class FuzzPluginListener final : public PluginListener {
 public:
     ~FuzzPluginListener() = default;

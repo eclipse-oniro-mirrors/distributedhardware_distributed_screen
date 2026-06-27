@@ -16,6 +16,6 @@
 #ifndef SCREENDECISIONCENTER_FUZZER_H
 #define SCREENDECISIONCENTER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "screendecisioncenter_fuzzer"
+#define FUZZ_PROJECT_NAME ("screendecisioncenter_fuzzer")
 
 #endif // SCREENDECISIONCENTER_FUZZER_H

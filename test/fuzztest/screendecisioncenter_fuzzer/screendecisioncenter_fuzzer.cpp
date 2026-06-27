@@ -29,15 +29,15 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define SDEC_FUZZ_MAX_DAMAGE_COUNT 8
-#define SDEC_FUZZ_MIN_RECT_FIELD -64
-#define SDEC_FUZZ_MAX_RECT_FIELD 4096
-#define SDEC_FUZZ_MIN_DIMENSION 0
-#define SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA 128
-#define SDEC_FUZZ_MIN_FPS 0.0
-#define SDEC_FUZZ_MAX_FPS 240.0
-#define SDEC_FUZZ_MIN_DAMAGE_COUNT 0
-#define SDEC_FUZZ_FUZZ_SUCCESS 0
+#define SDEC_FUZZ_MAX_DAMAGE_COUNT (8)
+#define SDEC_FUZZ_MIN_RECT_FIELD (-64)
+#define SDEC_FUZZ_MAX_RECT_FIELD (4096)
+#define SDEC_FUZZ_MIN_DIMENSION (0)
+#define SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA (128)
+#define SDEC_FUZZ_MIN_FPS (0.0)
+#define SDEC_FUZZ_MAX_FPS (240.0)
+#define SDEC_FUZZ_MIN_DAMAGE_COUNT (0)
+#define SDEC_FUZZ_FUZZ_SUCCESS (0)
 VideoParam CreateVideoParam(FuzzedDataProvider &provider)
 {
     VideoParam param;

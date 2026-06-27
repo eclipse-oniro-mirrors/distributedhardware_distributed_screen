@@ -16,6 +16,6 @@
 #ifndef DSCREENUTIL_FUZZER_H
 #define DSCREENUTIL_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "dscreenutil_fuzzer"
+#define FUZZ_PROJECT_NAME ("dscreenutil_fuzzer")
 
 #endif // DSCREENUTIL_FUZZER_H

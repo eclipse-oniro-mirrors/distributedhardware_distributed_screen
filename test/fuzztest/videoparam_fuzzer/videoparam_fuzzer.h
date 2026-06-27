@@ -16,6 +16,6 @@
 #ifndef VIDEOPARAM_FUZZER_H
 #define VIDEOPARAM_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "videoparam_fuzzer"
+#define FUZZ_PROJECT_NAME ("videoparam_fuzzer")
 
 #endif // VIDEOPARAM_FUZZER_H

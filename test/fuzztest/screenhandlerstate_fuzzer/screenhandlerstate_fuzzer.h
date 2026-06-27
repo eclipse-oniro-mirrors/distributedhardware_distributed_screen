@@ -16,6 +16,6 @@
 #ifndef SCREENHANDLERSTATE_FUZZER_H
 #define SCREENHANDLERSTATE_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "screenhandlerstate_fuzzer"
+#define FUZZ_PROJECT_NAME ("screenhandlerstate_fuzzer")
 
 #endif // SCREENHANDLERSTATE_FUZZER_H

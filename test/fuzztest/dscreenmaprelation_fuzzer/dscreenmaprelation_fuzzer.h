@@ -16,6 +16,6 @@
 #ifndef DSCREENMAPRELATION_FUZZER_H
 #define DSCREENMAPRELATION_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "dscreenmaprelation_fuzzer"
+#define FUZZ_PROJECT_NAME ("dscreenmaprelation_fuzzer")
 
 #endif // DSCREENMAPRELATION_FUZZER_H

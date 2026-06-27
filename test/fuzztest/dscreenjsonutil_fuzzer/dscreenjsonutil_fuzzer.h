@@ -16,6 +16,6 @@
 #ifndef DSCREENJSONUTIL_FUZZER_H
 #define DSCREENJSONUTIL_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "dscreenjsonutil_fuzzer"
+#define FUZZ_PROJECT_NAME ("dscreenjsonutil_fuzzer")
 
 #endif // DSCREENJSONUTIL_FUZZER_H

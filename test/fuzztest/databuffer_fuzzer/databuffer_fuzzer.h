@@ -16,6 +16,6 @@
 #ifndef DATABUFFER_FUZZER_H
 #define DATABUFFER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "databuffer_fuzzer"
+#define FUZZ_PROJECT_NAME ("databuffer_fuzzer")
 
 #endif // DATABUFFER_FUZZER_H

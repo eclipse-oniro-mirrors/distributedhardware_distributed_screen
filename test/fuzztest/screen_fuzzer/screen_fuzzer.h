@@ -16,6 +16,6 @@
 #ifndef SCREEN_FUZZER_H
 #define SCREEN_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "screen_fuzzer"
+#define FUZZ_PROJECT_NAME ("screen_fuzzer")
 
 #endif // SCREEN_FUZZER_H

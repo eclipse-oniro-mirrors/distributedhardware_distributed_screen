@@ -25,11 +25,11 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define DUTIL_FUZZ_MAX_STRING_LENGTH 128
-#define DUTIL_FUZZ_SHORT_VERSION_LENGTH 8
-#define DUTIL_FUZZ_MIN_VERSION_VALUE -2
-#define DUTIL_FUZZ_MAX_VERSION_VALUE 8
-#define DUTIL_FUZZ_FUZZ_SUCCESS 0
+#define DUTIL_FUZZ_MAX_STRING_LENGTH (128)
+#define DUTIL_FUZZ_SHORT_VERSION_LENGTH (8)
+#define DUTIL_FUZZ_MIN_VERSION_VALUE (-2)
+#define DUTIL_FUZZ_MAX_VERSION_VALUE (8)
+#define DUTIL_FUZZ_FUZZ_SUCCESS (0)
 std::string CreateVersionString(FuzzedDataProvider &provider)
 {
     if (provider.ConsumeBool()) {
