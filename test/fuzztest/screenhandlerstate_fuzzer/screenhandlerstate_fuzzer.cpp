@@ -27,9 +27,8 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define MAX_STRING_LENGTH (128)
-#define FUZZ_SUCCESS (0)
-
+#define SHSTATE_FUZZ_MAX_STRING_LENGTH 128
+#define SHSTATE_FUZZ_FUZZ_SUCCESS 0
 class FuzzPluginListener final : public PluginListener {
 public:
     ~FuzzPluginListener() = default;
@@ -55,9 +54,10 @@ private:
 
 void RunScreenhandlerstateFuzzer(FuzzedDataProvider &provider)
 {
-    std::string dhId = provider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
-    std::string attr = provider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
-    std::string subtype = provider.ConsumeBool() ? "screen" : provider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
+    std::string dhId = provider.ConsumeRandomLengthString(SHSTATE_FUZZ_MAX_STRING_LENGTH);
+    std::string attr = provider.ConsumeRandomLengthString(SHSTATE_FUZZ_MAX_STRING_LENGTH);
+    std::string subtype = provider.ConsumeBool() ? "screen" :
+        provider.ConsumeRandomLengthString(SHSTATE_FUZZ_MAX_STRING_LENGTH);
 
     std::shared_ptr<PluginListener> listener = nullptr;
     if (provider.ConsumeBool()) {
@@ -81,5 +81,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunScreenhandlerstateFuzzer(provider);
-    return FUZZ_SUCCESS;
+    return SHSTATE_FUZZ_FUZZ_SUCCESS;
 }

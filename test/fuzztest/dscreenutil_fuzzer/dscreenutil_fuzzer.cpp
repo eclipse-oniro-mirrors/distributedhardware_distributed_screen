@@ -25,24 +25,24 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define MAX_STRING_LENGTH (128)
-#define SHORT_VERSION_LENGTH (8)
-#define MIN_VERSION_VALUE (-2)
-#define MAX_VERSION_VALUE (8)
-#define FUZZ_SUCCESS (0)
-
+#define DUTIL_FUZZ_MAX_STRING_LENGTH 128
+#define DUTIL_FUZZ_SHORT_VERSION_LENGTH 8
+#define DUTIL_FUZZ_MIN_VERSION_VALUE -2
+#define DUTIL_FUZZ_MAX_VERSION_VALUE 8
+#define DUTIL_FUZZ_FUZZ_SUCCESS 0
 std::string CreateVersionString(FuzzedDataProvider &provider)
 {
     if (provider.ConsumeBool()) {
-        return provider.ConsumeRandomLengthString(SHORT_VERSION_LENGTH);
+        return provider.ConsumeRandomLengthString(DUTIL_FUZZ_SHORT_VERSION_LENGTH);
     }
-    return std::to_string(provider.ConsumeIntegralInRange<int32_t>(MIN_VERSION_VALUE, MAX_VERSION_VALUE));
+    return std::to_string(provider.ConsumeIntegralInRange<int32_t>(DUTIL_FUZZ_MIN_VERSION_VALUE,
+        DUTIL_FUZZ_MAX_VERSION_VALUE)));
 }
 } // namespace
 
 void RunDscreenutilFuzzer(FuzzedDataProvider &provider)
 {
-    std::string value = provider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
+    std::string value = provider.ConsumeRandomLengthString(DUTIL_FUZZ_MAX_STRING_LENGTH);
     std::string version = CreateVersionString(provider);
 
     (void)GetAnonyString(value);
@@ -62,5 +62,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunDscreenutilFuzzer(provider);
-    return FUZZ_SUCCESS;
+    return DUTIL_FUZZ_FUZZ_SUCCESS;
 }

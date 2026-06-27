@@ -29,28 +29,27 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define MAX_DAMAGE_COUNT (8)
-#define MIN_RECT_FIELD (-64)
-#define MAX_RECT_FIELD (4096)
-#define MIN_DIMENSION (0)
-#define DIMENSION_OVERFLOW_DELTA (128)
-#define MIN_FPS (0.0)
-#define MAX_FPS (240.0)
-#define MIN_DAMAGE_COUNT (0)
-#define FUZZ_SUCCESS (0)
-
+#define SDEC_FUZZ_MAX_DAMAGE_COUNT 8
+#define SDEC_FUZZ_MIN_RECT_FIELD -64
+#define SDEC_FUZZ_MAX_RECT_FIELD 4096
+#define SDEC_FUZZ_MIN_DIMENSION 0
+#define SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA 128
+#define SDEC_FUZZ_MIN_FPS 0.0
+#define SDEC_FUZZ_MAX_FPS 240.0
+#define SDEC_FUZZ_MIN_DAMAGE_COUNT 0
+#define SDEC_FUZZ_FUZZ_SUCCESS 0
 VideoParam CreateVideoParam(FuzzedDataProvider &provider)
 {
     VideoParam param;
-    param.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
-        DSCREEN_MAX_SCREEN_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA));
-    param.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
-        DSCREEN_MAX_SCREEN_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
-    param.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
-        DSCREEN_MAX_VIDEO_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA));
-    param.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
-        DSCREEN_MAX_VIDEO_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
-    param.SetFps(provider.ConsumeFloatingPointInRange<double>(MIN_FPS, MAX_FPS));
+    param.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(SDEC_FUZZ_MIN_DIMENSION,
+        DSCREEN_MAX_SCREEN_DATA_WIDTH + SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA));
+    param.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(SDEC_FUZZ_MIN_DIMENSION,
+        DSCREEN_MAX_SCREEN_DATA_HEIGHT + SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA));
+    param.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(SDEC_FUZZ_MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_WIDTH + SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA));
+    param.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(SDEC_FUZZ_MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_HEIGHT + SDEC_FUZZ_DIMENSION_OVERFLOW_DELTA));
+    param.SetFps(provider.ConsumeFloatingPointInRange<double>(SDEC_FUZZ_MIN_FPS, SDEC_FUZZ_MAX_FPS));
     param.SetCodecType(provider.ConsumeIntegral<uint8_t>());
     param.SetVideoFormat(provider.ConsumeIntegral<uint8_t>());
     param.SetPartialRefreshFlag(provider.ConsumeBool());
@@ -60,13 +59,13 @@ VideoParam CreateVideoParam(FuzzedDataProvider &provider)
 std::vector<OHOS::Rect> ConsumeDamages(FuzzedDataProvider &provider)
 {
     std::vector<OHOS::Rect> damages;
-    uint8_t count = provider.ConsumeIntegralInRange<uint8_t>(MIN_DAMAGE_COUNT, MAX_DAMAGE_COUNT);
-    for (uint8_t index = MIN_DAMAGE_COUNT; index < count; ++index) {
+    uint8_t count = provider.ConsumeIntegralInRange<uint8_t>(SDEC_FUZZ_MIN_DAMAGE_COUNT, SDEC_FUZZ_MAX_DAMAGE_COUNT);
+    for (uint8_t index = SDEC_FUZZ_MIN_DAMAGE_COUNT; index < count; ++index) {
         damages.emplace_back(OHOS::Rect {
-            provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
-            provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
-            provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
-            provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
+            provider.ConsumeIntegralInRange<int32_t>(SDEC_FUZZ_MIN_RECT_FIELD, SDEC_FUZZ_MAX_RECT_FIELD),
+            provider.ConsumeIntegralInRange<int32_t>(SDEC_FUZZ_MIN_RECT_FIELD, SDEC_FUZZ_MAX_RECT_FIELD),
+            provider.ConsumeIntegralInRange<int32_t>(SDEC_FUZZ_MIN_RECT_FIELD, SDEC_FUZZ_MAX_RECT_FIELD),
+            provider.ConsumeIntegralInRange<int32_t>(SDEC_FUZZ_MIN_RECT_FIELD, SDEC_FUZZ_MAX_RECT_FIELD),
         });
     }
     return damages;
@@ -98,5 +97,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunScreendecisioncenterFuzzer(provider);
-    return FUZZ_SUCCESS;
+    return SDEC_FUZZ_FUZZ_SUCCESS;
 }

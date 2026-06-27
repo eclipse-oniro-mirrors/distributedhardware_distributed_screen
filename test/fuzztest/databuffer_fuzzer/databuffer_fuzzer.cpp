@@ -27,43 +27,43 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-#define MAX_BUFFER_CAPACITY (4096)
-#define MAX_CHUNK_SIZE (512)
-#define MAX_OPERATION_COUNT (16)
-#define MAX_DIRTY_RECT_COUNT (8)
-#define MAX_DIRTY_RECT_FIELD (8192)
-#define SIZE_ZERO (0)
-#define SIZE_ONE (1)
-#define INT_NEGATIVE_ONE (-1)
-#define INT_ZERO (0)
-#define INT_ONE (1)
-#define READ_MODE_NULL_OUTPUT (0)
-#define READ_MODE_NEGATIVE_OFFSET (1)
-#define READ_MODE_OUT_OF_RANGE_OFFSET (2)
-#define MAX_READ_MODE (3)
-#define OPERATION_RESET_CAPACITY (0)
-#define OPERATION_ADD_VALID_DATA (1)
-#define OPERATION_ADD_NULL_DATA (2)
-#define OPERATION_READ_DATA (3)
-#define OPERATION_ADD_DIRTY_RECTS (4)
-#define MAX_OPERATION_KIND (5)
-#define FUZZ_SUCCESS (0)
-
+#define DBUF_FUZZ_MAX_BUFFER_CAPACITY 4096
+#define DBUF_FUZZ_MAX_CHUNK_SIZE 512
+#define DBUF_FUZZ_MAX_OPERATION_COUNT 16
+#define DBUF_FUZZ_MAX_DIRTY_RECT_COUNT 8
+#define DBUF_FUZZ_MAX_DIRTY_RECT_FIELD 8192
+#define DBUF_FUZZ_SIZE_ZERO 0
+#define DBUF_FUZZ_SIZE_ONE 1
+#define DBUF_FUZZ_INT_NEGATIVE_ONE -1
+#define DBUF_FUZZ_INT_ZERO 0
+#define DBUF_FUZZ_INT_ONE 1
+#define DBUF_FUZZ_READ_MODE_NULL_OUTPUT 0
+#define DBUF_FUZZ_READ_MODE_NEGATIVE_OFFSET 1
+#define DBUF_FUZZ_READ_MODE_OUT_OF_RANGE_OFFSET 2
+#define DBUF_FUZZ_MAX_READ_MODE 3
+#define DBUF_FUZZ_OPERATION_RESET_CAPACITY 0
+#define DBUF_FUZZ_OPERATION_ADD_VALID_DATA 1
+#define DBUF_FUZZ_OPERATION_ADD_NULL_DATA 2
+#define DBUF_FUZZ_OPERATION_READ_DATA 3
+#define DBUF_FUZZ_OPERATION_ADD_DIRTY_RECTS 4
+#define DBUF_FUZZ_MAX_OPERATION_KIND 5
+#define DBUF_FUZZ_FUZZ_SUCCESS 0
 size_t ConsumeCapacity(FuzzedDataProvider &provider)
 {
-    return provider.ConsumeIntegralInRange<size_t>(SIZE_ZERO, MAX_BUFFER_CAPACITY);
+    return provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO, DBUF_FUZZ_MAX_BUFFER_CAPACITY);
 }
 
 void AddValidData(DataBuffer &buffer, FuzzedDataProvider &provider, size_t allocatedCapacity)
 {
-    if (allocatedCapacity == SIZE_ZERO) {
+    if (allocatedCapacity == DBUF_FUZZ_SIZE_ZERO) {
         return;
     }
 
-    size_t writeOffset = provider.ConsumeIntegralInRange<size_t>(SIZE_ZERO, allocatedCapacity - SIZE_ONE);
-    size_t maxChunkSize = std::min(MAX_CHUNK_SIZE, allocatedCapacity - writeOffset);
-    size_t chunkSize = provider.ConsumeIntegralInRange<size_t>(SIZE_ONE, maxChunkSize);
-    std::vector<unsigned char> chunk(chunkSize, SIZE_ZERO);
+    size_t writeOffset = provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO,
+        allocatedCapacity - DBUF_FUZZ_SIZE_ONE);
+    size_t maxChunkSize = std::min(DBUF_FUZZ_MAX_CHUNK_SIZE, allocatedCapacity - writeOffset);
+    size_t chunkSize = provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ONE, maxChunkSize);
+    std::vector<unsigned char> chunk(chunkSize, DBUF_FUZZ_SIZE_ZERO);
     auto fuzzBytes = provider.ConsumeBytes<unsigned char>(chunkSize);
     std::copy(fuzzBytes.begin(), fuzzBytes.end(), chunk.begin());
 
@@ -74,14 +74,15 @@ void AddValidData(DataBuffer &buffer, FuzzedDataProvider &provider, size_t alloc
 
 void AddDirtyRects(DataBuffer &buffer, FuzzedDataProvider &provider)
 {
-    uint8_t rectCount = provider.ConsumeIntegralInRange<uint8_t>(READ_MODE_NULL_OUTPUT, MAX_DIRTY_RECT_COUNT);
-    for (uint8_t index = READ_MODE_NULL_OUTPUT; index < rectCount; ++index) {
+    uint8_t rectCount = provider.ConsumeIntegralInRange<uint8_t>(DBUF_FUZZ_READ_MODE_NULL_OUTPUT,
+        DBUF_FUZZ_MAX_DIRTY_RECT_COUNT);
+    for (uint8_t index = DBUF_FUZZ_READ_MODE_NULL_OUTPUT; index < rectCount; ++index) {
         DirtyRect rect {
-            provider.ConsumeIntegralInRange<uint32_t>(INT_ZERO, MAX_DIRTY_RECT_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(INT_ZERO, MAX_DIRTY_RECT_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(INT_ZERO, MAX_DIRTY_RECT_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(INT_ZERO, MAX_DIRTY_RECT_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(INT_ZERO, DSCREEN_MAX_LEN),
+            provider.ConsumeIntegralInRange<uint32_t>(DBUF_FUZZ_INT_ZERO, DBUF_FUZZ_MAX_DIRTY_RECT_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(DBUF_FUZZ_INT_ZERO, DBUF_FUZZ_MAX_DIRTY_RECT_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(DBUF_FUZZ_INT_ZERO, DBUF_FUZZ_MAX_DIRTY_RECT_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(DBUF_FUZZ_INT_ZERO, DBUF_FUZZ_MAX_DIRTY_RECT_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(DBUF_FUZZ_INT_ZERO, DSCREEN_MAX_LEN),
         };
         buffer.AddDirtyRect(rect);
     }
@@ -91,42 +92,45 @@ void AddDirtyRects(DataBuffer &buffer, FuzzedDataProvider &provider)
 void ReadData(DataBuffer &buffer, FuzzedDataProvider &provider)
 {
     size_t currentSize = buffer.Capacity();
-    uint8_t mode = provider.ConsumeIntegralInRange<uint8_t>(READ_MODE_NULL_OUTPUT, MAX_READ_MODE);
-    if (mode == READ_MODE_NULL_OUTPUT) {
+    uint8_t mode = provider.ConsumeIntegralInRange<uint8_t>(DBUF_FUZZ_READ_MODE_NULL_OUTPUT, DBUF_FUZZ_MAX_READ_MODE);
+    if (mode == DBUF_FUZZ_READ_MODE_NULL_OUTPUT) {
         uint8_t *output = nullptr;
-        (void)buffer.GetData(INT_ZERO, INT_ZERO, output);
+        (void)buffer.GetData(DBUF_FUZZ_INT_ZERO, DBUF_FUZZ_INT_ZERO, output);
         return;
     }
 
-    if (mode == READ_MODE_NEGATIVE_OFFSET) {
-        std::vector<uint8_t> output(SIZE_ONE, SIZE_ZERO);
+    if (mode == DBUF_FUZZ_READ_MODE_NEGATIVE_OFFSET) {
+        std::vector<uint8_t> output(DBUF_FUZZ_SIZE_ONE, DBUF_FUZZ_SIZE_ZERO);
         uint8_t *outputPtr = output.data();
-        (void)buffer.GetData(INT_NEGATIVE_ONE, INT_ZERO, outputPtr);
+        (void)buffer.GetData(DBUF_FUZZ_INT_NEGATIVE_ONE, DBUF_FUZZ_INT_ZERO, outputPtr);
         return;
     }
 
-    if (mode == READ_MODE_OUT_OF_RANGE_OFFSET || currentSize == SIZE_ZERO) {
-        std::vector<uint8_t> output(SIZE_ONE, SIZE_ZERO);
+    if (mode == DBUF_FUZZ_READ_MODE_OUT_OF_RANGE_OFFSET || currentSize == DBUF_FUZZ_SIZE_ZERO) {
+        std::vector<uint8_t> output(DBUF_FUZZ_SIZE_ONE, DBUF_FUZZ_SIZE_ZERO);
         uint8_t *outputPtr = output.data();
-        int32_t offset = static_cast<int32_t>(std::min<size_t>(currentSize + SIZE_ONE, MAX_BUFFER_CAPACITY));
-        (void)buffer.GetData(offset, INT_ONE, outputPtr);
+        size_t nextOffset = currentSize + DBUF_FUZZ_SIZE_ONE;
+        int32_t offset = static_cast<int32_t>(std::min<size_t>(nextOffset, DBUF_FUZZ_MAX_BUFFER_CAPACITY));
+        (void)buffer.GetData(offset, DBUF_FUZZ_INT_ONE, outputPtr);
         return;
     }
 
-    int32_t offset = provider.ConsumeIntegralInRange<int32_t>(INT_ZERO, static_cast<int32_t>(currentSize - SIZE_ONE));
+    int32_t offset = provider.ConsumeIntegralInRange<int32_t>(DBUF_FUZZ_INT_ZERO,
+        static_cast<int32_t>(currentSize - DBUF_FUZZ_SIZE_ONE));
     size_t remaining = currentSize - static_cast<size_t>(offset);
-    int32_t dataSize = provider.ConsumeIntegralInRange<int32_t>(INT_ONE,
-        static_cast<int32_t>(std::min<size_t>(remaining, MAX_CHUNK_SIZE)));
-    std::vector<uint8_t> output(static_cast<size_t>(dataSize), SIZE_ZERO);
+    int32_t dataSize = provider.ConsumeIntegralInRange<int32_t>(DBUF_FUZZ_INT_ONE,
+        static_cast<int32_t>(std::min<size_t>(remaining, DBUF_FUZZ_MAX_CHUNK_SIZE)));
+    std::vector<uint8_t> output(static_cast<size_t>(dataSize), DBUF_FUZZ_SIZE_ZERO);
     uint8_t *outputPtr = output.data();
     (void)buffer.GetData(offset, dataSize, outputPtr);
 }
 
 void RunDataBufferOperation(DataBuffer &buffer, FuzzedDataProvider &provider, size_t &allocatedCapacity)
 {
-    uint8_t operation = provider.ConsumeIntegralInRange<uint8_t>(OPERATION_RESET_CAPACITY, MAX_OPERATION_KIND);
+    uint8_t operation = provider.ConsumeIntegralInRange<uint8_t>(DBUF_FUZZ_OPERATION_RESET_CAPACITY,
+        DBUF_FUZZ_MAX_OPERATION_KIND);
     switch (operation) {
-        case OPERATION_RESET_CAPACITY: {
+        case DBUF_FUZZ_OPERATION_RESET_CAPACITY: {
             size_t resetCapacity = ConsumeCapacity(provider);
             size_t currentSize = buffer.Capacity();
             buffer.ResetCapcity(resetCapacity);
@@ -135,24 +139,26 @@ void RunDataBufferOperation(DataBuffer &buffer, FuzzedDataProvider &provider, si
             }
             break;
         }
-        case OPERATION_ADD_VALID_DATA:
+        case DBUF_FUZZ_OPERATION_ADD_VALID_DATA:
             AddValidData(buffer, provider, allocatedCapacity);
             break;
-        case OPERATION_ADD_NULL_DATA: {
+        case DBUF_FUZZ_OPERATION_ADD_NULL_DATA: {
             unsigned char *inputData = nullptr;
-            buffer.AddData(provider.ConsumeIntegralInRange<size_t>(SIZE_ZERO, MAX_CHUNK_SIZE), inputData);
+            size_t dataSize = provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO,
+                DBUF_FUZZ_MAX_CHUNK_SIZE);
+            buffer.AddData(dataSize, inputData);
             break;
         }
-        case OPERATION_READ_DATA:
+        case DBUF_FUZZ_OPERATION_READ_DATA:
             ReadData(buffer, provider);
             break;
-        case OPERATION_ADD_DIRTY_RECTS:
+        case DBUF_FUZZ_OPERATION_ADD_DIRTY_RECTS:
             AddDirtyRects(buffer, provider);
             break;
         default:
             buffer.SetDataType(provider.ConsumeIntegral<uint8_t>());
             (void)buffer.DataType();
-            buffer.SetDataNumber(provider.ConsumeIntegralInRange<size_t>(SIZE_ZERO, DATA_QUEUE_MAX_SIZE));
+            buffer.SetDataNumber(provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO, DATA_QUEUE_MAX_SIZE));
             (void)buffer.DataNumber();
             break;
     }
@@ -166,11 +172,12 @@ void RunDatabufferFuzzer(FuzzedDataProvider &provider)
     size_t allocatedCapacity = buffer.Capacity();
 
     buffer.SetDataType(provider.ConsumeBool() ? VIDEO_FULL_SCREEN_DATA : VIDEO_PART_SCREEN_DATA);
-    buffer.SetDataNumber(provider.ConsumeIntegralInRange<size_t>(SIZE_ZERO, DATA_QUEUE_MAX_SIZE));
+    buffer.SetDataNumber(provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO, DATA_QUEUE_MAX_SIZE));
     AddDirtyRects(buffer, provider);
 
-    uint8_t operationCount = provider.ConsumeIntegralInRange<uint8_t>(READ_MODE_NEGATIVE_OFFSET, MAX_OPERATION_COUNT);
-    for (uint8_t index = READ_MODE_NULL_OUTPUT; index < operationCount; ++index) {
+    uint8_t operationCount = provider.ConsumeIntegralInRange<uint8_t>(DBUF_FUZZ_READ_MODE_NEGATIVE_OFFSET,
+        DBUF_FUZZ_MAX_OPERATION_COUNT);
+    for (uint8_t index = DBUF_FUZZ_READ_MODE_NULL_OUTPUT; index < operationCount; ++index) {
         RunDataBufferOperation(buffer, provider, allocatedCapacity);
     }
 }
@@ -181,5 +188,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunDatabufferFuzzer(provider);
-    return FUZZ_SUCCESS;
+    return DBUF_FUZZ_FUZZ_SUCCESS;
 }
