@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <unistd.h>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
+#ifndef SCREEN_FUZZER_H
+#define SCREEN_FUZZER_H
 
 #define FUZZ_PROJECT_NAME "screen_fuzzer"
 
+#endif // SCREEN_FUZZER_H
