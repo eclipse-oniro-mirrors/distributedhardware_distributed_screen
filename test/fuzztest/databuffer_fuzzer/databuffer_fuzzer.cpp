@@ -61,7 +61,7 @@ void AddValidData(DataBuffer &buffer, FuzzedDataProvider &provider, size_t alloc
 
     size_t writeOffset = provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ZERO,
         allocatedCapacity - DBUF_FUZZ_SIZE_ONE);
-    size_t maxChunkSize = std::min(DBUF_FUZZ_MAX_CHUNK_SIZE, allocatedCapacity - writeOffset);
+    size_t maxChunkSize = std::min<size_t>(DBUF_FUZZ_MAX_CHUNK_SIZE, allocatedCapacity - writeOffset);
     size_t chunkSize = provider.ConsumeIntegralInRange<size_t>(DBUF_FUZZ_SIZE_ONE, maxChunkSize);
     std::vector<unsigned char> chunk(chunkSize, DBUF_FUZZ_SIZE_ZERO);
     auto fuzzBytes = provider.ConsumeBytes<unsigned char>(chunkSize);

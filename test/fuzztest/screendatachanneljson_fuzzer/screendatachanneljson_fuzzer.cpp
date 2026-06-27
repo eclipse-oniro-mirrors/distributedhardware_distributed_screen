@@ -44,7 +44,7 @@ std::shared_ptr<DataBuffer> MakeScreenData(FuzzedDataProvider &provider)
 {
     auto dataBuffer =
         std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(SDCHJSON_FUZZ_MIN_BUFFER_CAPACITY,
-            SDCHJSON_FUZZ_MAX_BUFFER_CAPACITY)));
+            SDCHJSON_FUZZ_MAX_BUFFER_CAPACITY));
     dataBuffer->SetDataType(provider.ConsumeBool() ? VIDEO_PART_SCREEN_DATA : VIDEO_FULL_SCREEN_DATA);
     uint8_t rectCount = provider.ConsumeIntegralInRange<uint8_t>(SDCHJSON_FUZZ_MIN_DIRTY_COUNT,
         SDCHJSON_FUZZ_MAX_DIRTY_COUNT);
@@ -109,7 +109,7 @@ void RunScreendatachanneljsonFuzzer(FuzzedDataProvider &provider)
 
     auto parsedBuffer =
         std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(SDCHJSON_FUZZ_MIN_BUFFER_CAPACITY,
-            SDCHJSON_FUZZ_MAX_BUFFER_CAPACITY)));
+            SDCHJSON_FUZZ_MAX_BUFFER_CAPACITY));
     nlohmann::json fuzzJson = provider.ConsumeBool() ? rectJson : MakeDirtyJson(provider);
     channel->JsonToDirtyJson(fuzzJson, parsedBuffer);
     (void)parsedBuffer->GetDirtyRectVec();

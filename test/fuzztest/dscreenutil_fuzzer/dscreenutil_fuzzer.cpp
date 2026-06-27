@@ -36,7 +36,7 @@ std::string CreateVersionString(FuzzedDataProvider &provider)
         return provider.ConsumeRandomLengthString(DUTIL_FUZZ_SHORT_VERSION_LENGTH);
     }
     return std::to_string(provider.ConsumeIntegralInRange<int32_t>(DUTIL_FUZZ_MIN_VERSION_VALUE,
-        DUTIL_FUZZ_MAX_VERSION_VALUE)));
+        DUTIL_FUZZ_MAX_VERSION_VALUE));
 }
 } // namespace
 

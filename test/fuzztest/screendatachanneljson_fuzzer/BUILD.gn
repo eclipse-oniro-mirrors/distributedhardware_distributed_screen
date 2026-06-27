@@ -49,6 +49,9 @@ ohos_fuzztest("ScreenDataChannelJsonFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
+    "distributed_hardware_fwk:distributed_av_sender",
+    "distributed_hardware_fwk:distributedhardwareutils",
+    "distributed_hardware_fwk:libdhfwk_sdk",
     "dsoftbus:softbus_client",
     "hilog:libhilog",
     "json:nlohmann_json_static",
