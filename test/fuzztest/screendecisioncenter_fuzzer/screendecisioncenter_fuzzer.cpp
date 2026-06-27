@@ -29,18 +29,28 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr uint8_t MAX_DAMAGE_COUNT = 8;
-constexpr int32_t MIN_RECT_FIELD = -64;
-constexpr int32_t MAX_RECT_FIELD = 4096;
+#define MAX_DAMAGE_COUNT (8)
+#define MIN_RECT_FIELD (-64)
+#define MAX_RECT_FIELD (4096)
+#define MIN_DIMENSION (0)
+#define DIMENSION_OVERFLOW_DELTA (128)
+#define MIN_FPS (0.0)
+#define MAX_FPS (240.0)
+#define MIN_DAMAGE_COUNT (0)
+#define FUZZ_SUCCESS (0)
 
 VideoParam CreateVideoParam(FuzzedDataProvider &provider)
 {
     VideoParam param;
-    param.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_SCREEN_DATA_WIDTH + 128));
-    param.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_SCREEN_DATA_HEIGHT + 128));
-    param.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_VIDEO_DATA_WIDTH + 128));
-    param.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_VIDEO_DATA_HEIGHT + 128));
-    param.SetFps(provider.ConsumeFloatingPointInRange<double>(0.0, 240.0));
+    param.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_SCREEN_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA));
+    param.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_SCREEN_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
+    param.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA));
+    param.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
+    param.SetFps(provider.ConsumeFloatingPointInRange<double>(MIN_FPS, MAX_FPS));
     param.SetCodecType(provider.ConsumeIntegral<uint8_t>());
     param.SetVideoFormat(provider.ConsumeIntegral<uint8_t>());
     param.SetPartialRefreshFlag(provider.ConsumeBool());
@@ -50,8 +60,8 @@ VideoParam CreateVideoParam(FuzzedDataProvider &provider)
 std::vector<OHOS::Rect> ConsumeDamages(FuzzedDataProvider &provider)
 {
     std::vector<OHOS::Rect> damages;
-    uint8_t count = provider.ConsumeIntegralInRange<uint8_t>(0, MAX_DAMAGE_COUNT);
-    for (uint8_t index = 0; index < count; ++index) {
+    uint8_t count = provider.ConsumeIntegralInRange<uint8_t>(MIN_DAMAGE_COUNT, MAX_DAMAGE_COUNT);
+    for (uint8_t index = MIN_DAMAGE_COUNT; index < count; ++index) {
         damages.emplace_back(OHOS::Rect {
             provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
             provider.ConsumeIntegralInRange<int32_t>(MIN_RECT_FIELD, MAX_RECT_FIELD),
@@ -88,5 +98,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunScreendecisioncenterFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

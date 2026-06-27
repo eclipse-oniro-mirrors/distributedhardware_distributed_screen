@@ -26,19 +26,26 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_ARG_LENGTH = 32;
-constexpr uint8_t MAX_ARG_COUNT = 3;
+#define MAX_ARG_LENGTH (32)
+#define MAX_ARG_COUNT (3)
+#define MIN_ARG_SELECTOR (0)
+#define ARG_HELP_SELECTOR (0)
+#define ARG_STOP_DUMP_SELECTOR (1)
+#define ARG_UNKNOWN_SELECTOR (2)
+#define ARG_EMPTY_SELECTOR (3)
+#define MAX_ARG_SELECTOR (4)
+#define FUZZ_SUCCESS (0)
 
 std::string ConsumeKnownOrRandomArg(FuzzedDataProvider &provider)
 {
-    switch (provider.ConsumeIntegralInRange<uint8_t>(0, 4)) {
-        case 0:
+    switch (provider.ConsumeIntegralInRange<uint8_t>(MIN_ARG_SELECTOR, MAX_ARG_SELECTOR)) {
+        case ARG_HELP_SELECTOR:
             return "-h";
-        case 1:
+        case ARG_STOP_DUMP_SELECTOR:
             return "--stopdump";
-        case 2:
+        case ARG_UNKNOWN_SELECTOR:
             return "--unknown";
-        case 3:
+        case ARG_EMPTY_SELECTOR:
             return "";
         default:
             return provider.ConsumeRandomLengthString(MAX_ARG_LENGTH);
@@ -74,8 +81,8 @@ void RunDscreenhidumperFuzzer(FuzzedDataProvider &provider)
     }
 
     std::vector<std::string> args;
-    uint8_t argCount = provider.ConsumeIntegralInRange<uint8_t>(0, MAX_ARG_COUNT);
-    for (uint8_t index = 0; index < argCount; ++index) {
+    uint8_t argCount = provider.ConsumeIntegralInRange<uint8_t>(MIN_ARG_SELECTOR, MAX_ARG_COUNT);
+    for (uint8_t index = MIN_ARG_SELECTOR; index < argCount; ++index) {
         args.emplace_back(ConsumeKnownOrRandomArg(provider));
     }
     std::string result;
@@ -93,5 +100,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunDscreenhidumperFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

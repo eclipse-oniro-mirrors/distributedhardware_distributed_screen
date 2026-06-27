@@ -30,23 +30,30 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_PEER_ID_LENGTH = 64;
-constexpr size_t MAX_BUFFER_CAPACITY = 512;
-constexpr uint8_t MAX_DIRTY_COUNT = 8;
-constexpr uint32_t MAX_DIRTY_FIELD = 4096;
+#define MAX_PEER_ID_LENGTH (64)
+#define MAX_BUFFER_CAPACITY (512)
+#define MAX_DIRTY_COUNT (8)
+#define MAX_DIRTY_FIELD (4096)
+#define MIN_BUFFER_CAPACITY (1)
+#define MIN_DIRTY_COUNT (0)
+#define MIN_DIRTY_JSON_COUNT (0)
+#define MIN_DIRTY_FIELD (0)
+#define INVALID_JSON_VALUE_LENGTH (8)
+#define FUZZ_SUCCESS (0)
 
 std::shared_ptr<DataBuffer> MakeScreenData(FuzzedDataProvider &provider)
 {
-    auto dataBuffer = std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(1, MAX_BUFFER_CAPACITY));
+    auto dataBuffer =
+        std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(MIN_BUFFER_CAPACITY, MAX_BUFFER_CAPACITY));
     dataBuffer->SetDataType(provider.ConsumeBool() ? VIDEO_PART_SCREEN_DATA : VIDEO_FULL_SCREEN_DATA);
-    uint8_t rectCount = provider.ConsumeIntegralInRange<uint8_t>(0, MAX_DIRTY_COUNT);
-    for (uint8_t index = 0; index < rectCount; ++index) {
+    uint8_t rectCount = provider.ConsumeIntegralInRange<uint8_t>(MIN_DIRTY_COUNT, MAX_DIRTY_COUNT);
+    for (uint8_t index = MIN_DIRTY_COUNT; index < rectCount; ++index) {
         DirtyRect rect {
-            provider.ConsumeIntegralInRange<uint32_t>(0, MAX_DIRTY_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(0, MAX_DIRTY_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(0, MAX_DIRTY_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(0, MAX_DIRTY_FIELD),
-            provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_LEN),
+            provider.ConsumeIntegralInRange<uint32_t>(MIN_DIRTY_FIELD, MAX_DIRTY_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(MIN_DIRTY_FIELD, MAX_DIRTY_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(MIN_DIRTY_FIELD, MAX_DIRTY_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(MIN_DIRTY_FIELD, MAX_DIRTY_FIELD),
+            provider.ConsumeIntegralInRange<uint32_t>(MIN_DIRTY_FIELD, DSCREEN_MAX_LEN),
         };
         dataBuffer->AddDirtyRect(rect);
     }
@@ -56,26 +63,30 @@ std::shared_ptr<DataBuffer> MakeScreenData(FuzzedDataProvider &provider)
 nlohmann::json MakeDirtyJson(FuzzedDataProvider &provider)
 {
     nlohmann::json rectJson = nlohmann::json::object();
-    int32_t dirtySize = provider.ConsumeIntegralInRange<int32_t>(0, MAX_DIRTY_COUNT);
+    int32_t dirtySize = provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_JSON_COUNT, MAX_DIRTY_COUNT);
     if (provider.ConsumeBool()) {
         rectJson["dirtySize"] = dirtySize;
     } else {
-        rectJson["dirtySize"] = provider.ConsumeRandomLengthString(8);
+        rectJson["dirtySize"] = provider.ConsumeRandomLengthString(INVALID_JSON_VALUE_LENGTH);
     }
     if (provider.ConsumeBool()) {
         rectJson["dataType"] = static_cast<int32_t>(VIDEO_PART_SCREEN_DATA);
     } else {
-        rectJson["dataType"] = provider.ConsumeRandomLengthString(8);
+        rectJson["dataType"] = provider.ConsumeRandomLengthString(INVALID_JSON_VALUE_LENGTH);
     }
-    for (int32_t index = 0; index < dirtySize; ++index) {
+    for (int32_t index = MIN_DIRTY_JSON_COUNT; index < dirtySize; ++index) {
         std::string key = std::to_string(index);
         if (provider.ConsumeBool()) {
             rectJson[key] = nlohmann::json {
-                {KEY_POINT_DIRTY_X, provider.ConsumeIntegralInRange<int32_t>(0, static_cast<int32_t>(MAX_DIRTY_FIELD))},
-                {KEY_POINT_DIRTY_Y, provider.ConsumeIntegralInRange<int32_t>(0, static_cast<int32_t>(MAX_DIRTY_FIELD))},
-                {KEY_POINT_DIRTY_W, provider.ConsumeIntegralInRange<int32_t>(0, static_cast<int32_t>(MAX_DIRTY_FIELD))},
-                {KEY_POINT_DIRTY_H, provider.ConsumeIntegralInRange<int32_t>(0, static_cast<int32_t>(MAX_DIRTY_FIELD))},
-                {KEY_POINT_DIRTY_SIZE, provider.ConsumeIntegralInRange<int32_t>(0, DSCREEN_MAX_LEN)},
+                {KEY_POINT_DIRTY_X, provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_FIELD,
+                    static_cast<int32_t>(MAX_DIRTY_FIELD))},
+                {KEY_POINT_DIRTY_Y, provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_FIELD,
+                    static_cast<int32_t>(MAX_DIRTY_FIELD))},
+                {KEY_POINT_DIRTY_W, provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_FIELD,
+                    static_cast<int32_t>(MAX_DIRTY_FIELD))},
+                {KEY_POINT_DIRTY_H, provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_FIELD,
+                    static_cast<int32_t>(MAX_DIRTY_FIELD))},
+                {KEY_POINT_DIRTY_SIZE, provider.ConsumeIntegralInRange<int32_t>(MIN_DIRTY_FIELD, DSCREEN_MAX_LEN)},
             };
         }
     }
@@ -93,7 +104,8 @@ void RunScreendatachanneljsonFuzzer(FuzzedDataProvider &provider)
     auto dataBuffer = MakeScreenData(provider);
     channel->DirtyVecToJson(rectJson, dataBuffer);
 
-    auto parsedBuffer = std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(1, MAX_BUFFER_CAPACITY));
+    auto parsedBuffer =
+        std::make_shared<DataBuffer>(provider.ConsumeIntegralInRange<size_t>(MIN_BUFFER_CAPACITY, MAX_BUFFER_CAPACITY));
     nlohmann::json fuzzJson = provider.ConsumeBool() ? rectJson : MakeDirtyJson(provider);
     channel->JsonToDirtyJson(fuzzJson, parsedBuffer);
     (void)parsedBuffer->GetDirtyRectVec();
@@ -107,5 +119,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunScreendatachanneljsonFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

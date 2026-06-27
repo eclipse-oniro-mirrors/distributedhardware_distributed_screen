@@ -28,28 +28,41 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_KEY_LENGTH = 32;
-constexpr size_t MAX_STRING_LENGTH = 128;
-constexpr uint8_t JSON_TYPE_COUNT = 9;
+#define MAX_KEY_LENGTH (32)
+#define MAX_STRING_LENGTH (128)
+#define JSON_TYPE_COUNT (9)
+#define MIN_JSON_TYPE (0)
+#define JSON_STRING_TYPE (0)
+#define JSON_UINT8_TYPE (1)
+#define JSON_INT32_TYPE (2)
+#define JSON_UINT32_TYPE (3)
+#define JSON_INT64_TYPE (4)
+#define JSON_UINT64_TYPE (5)
+#define JSON_DOUBLE_TYPE (6)
+#define JSON_BOOL_TYPE (7)
+#define MAX_EXTRA_KEY_COUNT (8)
+#define MIN_KEY_INDEX (0)
+#define KEY_INDEX_STEP (1)
+#define FUZZ_SUCCESS (0)
 
 nlohmann::json ConsumeJsonValue(FuzzedDataProvider &provider)
 {
-    switch (provider.ConsumeIntegralInRange<uint8_t>(0, JSON_TYPE_COUNT - 1)) {
-        case 0:
+    switch (provider.ConsumeIntegralInRange<uint8_t>(MIN_JSON_TYPE, JSON_TYPE_COUNT - KEY_INDEX_STEP)) {
+        case JSON_STRING_TYPE:
             return provider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
-        case 1:
+        case JSON_UINT8_TYPE:
             return provider.ConsumeIntegral<uint8_t>();
-        case 2:
+        case JSON_INT32_TYPE:
             return provider.ConsumeIntegral<int32_t>();
-        case 3:
+        case JSON_UINT32_TYPE:
             return provider.ConsumeIntegral<uint32_t>();
-        case 4:
+        case JSON_INT64_TYPE:
             return provider.ConsumeIntegral<int64_t>();
-        case 5:
+        case JSON_UINT64_TYPE:
             return provider.ConsumeIntegral<uint64_t>();
-        case 6:
+        case JSON_DOUBLE_TYPE:
             return provider.ConsumeFloatingPoint<double>();
-        case 7:
+        case JSON_BOOL_TYPE:
             return provider.ConsumeBool();
         default:
             return nlohmann::json::array({provider.ConsumeIntegral<int32_t>(),
@@ -74,7 +87,7 @@ std::string ConsumeKnownOrRandomKey(FuzzedDataProvider &provider)
         KEY_SCREEN_RECT,
     };
     if (provider.ConsumeBool()) {
-        return keys[provider.ConsumeIntegralInRange<size_t>(0, keys.size() - 1)];
+        return keys[provider.ConsumeIntegralInRange<size_t>(MIN_KEY_INDEX, keys.size() - KEY_INDEX_STEP)];
     }
     std::string key = provider.ConsumeRandomLengthString(MAX_KEY_LENGTH);
     return key.empty() ? KEY_SCREEN_WIDTH : key;
@@ -86,8 +99,8 @@ nlohmann::json CreateJsonObject(FuzzedDataProvider &provider, std::string &targe
     if (provider.ConsumeBool()) {
         jsonObj[targetKey] = ConsumeJsonValue(provider);
     }
-    uint8_t extraCount = provider.ConsumeIntegralInRange<uint8_t>(0, 8);
-    for (uint8_t index = 0; index < extraCount; ++index) {
+    uint8_t extraCount = provider.ConsumeIntegralInRange<uint8_t>(MIN_JSON_TYPE, MAX_EXTRA_KEY_COUNT);
+    for (uint8_t index = MIN_JSON_TYPE; index < extraCount; ++index) {
         jsonObj[ConsumeKnownOrRandomKey(provider)] = ConsumeJsonValue(provider);
     }
     return jsonObj;
@@ -118,5 +131,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunDscreenjsonutilFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

@@ -25,14 +25,18 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_STRING_LENGTH = 128;
+#define MAX_STRING_LENGTH (128)
+#define SHORT_VERSION_LENGTH (8)
+#define MIN_VERSION_VALUE (-2)
+#define MAX_VERSION_VALUE (8)
+#define FUZZ_SUCCESS (0)
 
 std::string CreateVersionString(FuzzedDataProvider &provider)
 {
     if (provider.ConsumeBool()) {
-        return provider.ConsumeRandomLengthString(8);
+        return provider.ConsumeRandomLengthString(SHORT_VERSION_LENGTH);
     }
-    return std::to_string(provider.ConsumeIntegralInRange<int32_t>(-2, 8));
+    return std::to_string(provider.ConsumeIntegralInRange<int32_t>(MIN_VERSION_VALUE, MAX_VERSION_VALUE));
 }
 } // namespace
 
@@ -58,5 +62,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunDscreenutilFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

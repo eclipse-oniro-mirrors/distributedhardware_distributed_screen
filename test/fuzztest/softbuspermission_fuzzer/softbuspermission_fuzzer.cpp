@@ -26,20 +26,38 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_JSON_LENGTH = 128;
-constexpr size_t MAX_NETWORK_ID_LENGTH = 64;
+#define MAX_JSON_LENGTH (128)
+#define MAX_NETWORK_ID_LENGTH (64)
+#define ACCOUNT_ID_VALUE_LENGTH (24)
+#define MIN_ACCESS_INFO_SELECTOR (0)
+#define STRING_ACCOUNT_SELECTOR (0)
+#define NUMERIC_ACCOUNT_SELECTOR (1)
+#define BAD_JSON_SELECTOR (2)
+#define EMPTY_JSON_SELECTOR (3)
+#define MAX_ACCESS_INFO_SELECTOR (4)
+#define EMPTY_TOKEN_ID (0)
+#define FUZZ_SUCCESS (0)
+const std::string JSON_ACCOUNT_PREFIX = "{\"accountId\":\"";
+const std::string JSON_ACCOUNT_SUFFIX = "\"}";
+const std::string JSON_NUMERIC_ACCOUNT_PREFIX = "{\"accountId\":";
+const std::string JSON_NUMERIC_ACCOUNT_VALUE = std::to_string(NUMERIC_ACCOUNT_SELECTOR);
+const std::string JSON_NUMERIC_ACCOUNT_SUFFIX = "}";
+const std::string BAD_JSON_PAYLOAD = "{bad json";
+const std::string EMPTY_JSON_PAYLOAD = "{}";
+#define STRING_TERMINATOR ('\0')
 
 std::string ConsumeAccessInfo(FuzzedDataProvider &provider)
 {
-    switch (provider.ConsumeIntegralInRange<uint8_t>(0, 4)) {
-        case 0:
-            return "{\"accountId\":\"" + provider.ConsumeRandomLengthString(24) + "\"}";
-        case 1:
-            return "{\"accountId\":1}";
-        case 2:
-            return "{bad json";
-        case 3:
-            return "{}";
+    switch (provider.ConsumeIntegralInRange<uint8_t>(MIN_ACCESS_INFO_SELECTOR, MAX_ACCESS_INFO_SELECTOR)) {
+        case STRING_ACCOUNT_SELECTOR:
+            return JSON_ACCOUNT_PREFIX + provider.ConsumeRandomLengthString(ACCOUNT_ID_VALUE_LENGTH) +
+                JSON_ACCOUNT_SUFFIX;
+        case NUMERIC_ACCOUNT_SELECTOR:
+            return JSON_NUMERIC_ACCOUNT_PREFIX + JSON_NUMERIC_ACCOUNT_VALUE + JSON_NUMERIC_ACCOUNT_SUFFIX;
+        case BAD_JSON_SELECTOR:
+            return BAD_JSON_PAYLOAD;
+        case EMPTY_JSON_SELECTOR:
+            return EMPTY_JSON_PAYLOAD;
         default:
             return provider.ConsumeRandomLengthString(MAX_JSON_LENGTH);
     }
@@ -55,7 +73,7 @@ void SetSocketAccessInfoFields(SocketAccessInfo &accessInfo, FuzzedDataProvider 
 void ResetSocketAccessInfo(SocketAccessInfo &accessInfo)
 {
     accessInfo.userId = INVALID_USER_ID;
-    accessInfo.localTokenId = 0;
+    accessInfo.localTokenId = EMPTY_TOKEN_ID;
     accessInfo.extraAccessInfo = nullptr;
 }
 } // namespace
@@ -74,7 +92,7 @@ void RunSoftbuspermissionFuzzer(FuzzedDataProvider &provider)
 
     std::string payload = ConsumeAccessInfo(provider);
     std::vector<char> payloadBuffer(payload.begin(), payload.end());
-    payloadBuffer.emplace_back('\0');
+    payloadBuffer.emplace_back(STRING_TERMINATOR);
     SetSocketAccessInfoFields(accessInfo, provider, payloadBuffer.data());
     (void)SoftBusPermissionCheck::TransCallerInfo(&accessInfo, callerAccountInfo, networkId);
     ResetSocketAccessInfo(accessInfo);
@@ -87,5 +105,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunSoftbuspermissionFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

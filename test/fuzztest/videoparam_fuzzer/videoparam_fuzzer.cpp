@@ -26,14 +26,22 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr uint32_t MAX_DIMENSION = DSCREEN_MAX_SCREEN_DATA_WIDTH + 128;
+#define DIMENSION_OVERFLOW_DELTA (128)
+#define MAX_DIMENSION (DSCREEN_MAX_SCREEN_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA)
+#define MIN_DIMENSION (0)
+#define MIN_DIMENSION_OVERFLOW_DELTA (1)
+#define INVALID_JSON_VALUE_LENGTH (8)
+#define MIN_FPS (0.0)
+#define MAX_FPS (240.0)
+#define FUZZ_SUCCESS (0)
 
 uint32_t ConsumeDimension(FuzzedDataProvider &provider, uint32_t maxValue)
 {
     if (provider.ConsumeBool()) {
-        return provider.ConsumeIntegralInRange<uint32_t>(0, maxValue);
+        return provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION, maxValue);
     }
-    return maxValue + provider.ConsumeIntegralInRange<uint32_t>(1, 128);
+    return maxValue + provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION_OVERFLOW_DELTA,
+        DIMENSION_OVERFLOW_DELTA);
 }
 
 nlohmann::json CreateVideoParamJson(FuzzedDataProvider &provider)
@@ -42,7 +50,7 @@ nlohmann::json CreateVideoParamJson(FuzzedDataProvider &provider)
     if (provider.ConsumeBool()) {
         jsonObj[KEY_SCREEN_WIDTH] = ConsumeDimension(provider, DSCREEN_MAX_SCREEN_DATA_WIDTH);
     } else {
-        jsonObj[KEY_SCREEN_WIDTH] = provider.ConsumeRandomLengthString(8);
+        jsonObj[KEY_SCREEN_WIDTH] = provider.ConsumeRandomLengthString(INVALID_JSON_VALUE_LENGTH);
     }
     if (provider.ConsumeBool()) {
         jsonObj[KEY_SCREEN_HEIGHT] = ConsumeDimension(provider, DSCREEN_MAX_SCREEN_DATA_HEIGHT);
@@ -52,10 +60,10 @@ nlohmann::json CreateVideoParamJson(FuzzedDataProvider &provider)
         jsonObj[KEY_VIDEO_HEIGHT] = ConsumeDimension(provider, DSCREEN_MAX_VIDEO_DATA_HEIGHT);
     } else {
         jsonObj[KEY_VIDEO_WIDTH] = provider.ConsumeIntegral<int32_t>();
-        jsonObj[KEY_VIDEO_HEIGHT] = provider.ConsumeRandomLengthString(8);
+        jsonObj[KEY_VIDEO_HEIGHT] = provider.ConsumeRandomLengthString(INVALID_JSON_VALUE_LENGTH);
     }
     if (provider.ConsumeBool()) {
-        jsonObj[KEY_FPS] = provider.ConsumeFloatingPointInRange<double>(0.0, 240.0);
+        jsonObj[KEY_FPS] = provider.ConsumeFloatingPointInRange<double>(MIN_FPS, MAX_FPS);
     } else {
         jsonObj[KEY_FPS] = provider.ConsumeIntegral<int32_t>();
     }
@@ -69,7 +77,7 @@ nlohmann::json CreateVideoParamJson(FuzzedDataProvider &provider)
         jsonObj[KEY_COLOR_FORMAT] =
             provider.ConsumeIntegralInRange<uint8_t>(VIDEO_DATA_FORMAT_YUVI420, VIDEO_DATA_FORMAT_RGBA8888);
     } else {
-        jsonObj[KEY_COLOR_FORMAT] = provider.ConsumeRandomLengthString(8);
+        jsonObj[KEY_COLOR_FORMAT] = provider.ConsumeRandomLengthString(INVALID_JSON_VALUE_LENGTH);
     }
     if (provider.ConsumeBool()) {
         jsonObj[KEY_PARTIALREFRESH] = provider.ConsumeBool();
@@ -81,11 +89,14 @@ nlohmann::json CreateVideoParamJson(FuzzedDataProvider &provider)
 void RunVideoparamFuzzer(FuzzedDataProvider &provider)
 {
     VideoParam videoParam;
-    videoParam.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(0, MAX_DIMENSION));
-    videoParam.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_SCREEN_DATA_HEIGHT + 128));
-    videoParam.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_VIDEO_DATA_WIDTH + 128));
-    videoParam.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(0, DSCREEN_MAX_VIDEO_DATA_HEIGHT + 128));
-    videoParam.SetFps(provider.ConsumeFloatingPointInRange<double>(0.0, 240.0));
+    videoParam.SetScreenWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION, MAX_DIMENSION));
+    videoParam.SetScreenHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_SCREEN_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
+    videoParam.SetVideoWidth(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_WIDTH + DIMENSION_OVERFLOW_DELTA));
+    videoParam.SetVideoHeight(provider.ConsumeIntegralInRange<uint32_t>(MIN_DIMENSION,
+        DSCREEN_MAX_VIDEO_DATA_HEIGHT + DIMENSION_OVERFLOW_DELTA));
+    videoParam.SetFps(provider.ConsumeFloatingPointInRange<double>(MIN_FPS, MAX_FPS));
     videoParam.SetCodecType(provider.ConsumeIntegral<uint8_t>());
     videoParam.SetVideoFormat(provider.ConsumeIntegral<uint8_t>());
     videoParam.SetPartialRefreshFlag(provider.ConsumeBool());
@@ -113,5 +124,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunVideoparamFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }

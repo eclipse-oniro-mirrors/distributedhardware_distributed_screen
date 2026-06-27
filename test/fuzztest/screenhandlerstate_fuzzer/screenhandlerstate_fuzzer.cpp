@@ -27,7 +27,8 @@
 namespace OHOS {
 namespace DistributedHardware {
 namespace {
-constexpr size_t MAX_STRING_LENGTH = 128;
+#define MAX_STRING_LENGTH (128)
+#define FUZZ_SUCCESS (0)
 
 class FuzzPluginListener final : public PluginListener {
 public:
@@ -80,5 +81,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider provider(data, size);
     OHOS::DistributedHardware::RunScreenhandlerstateFuzzer(provider);
-    return 0;
+    return FUZZ_SUCCESS;
 }
