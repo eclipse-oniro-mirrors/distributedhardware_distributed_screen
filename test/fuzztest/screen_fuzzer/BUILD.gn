@@ -1,0 +1,80 @@
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("//foundation/distributedhardware/distributed_screen/distributedscreen.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("ScreenFuzzTest") {
+  module_out_path = "${fuzz_test_path}/screenclient"
+
+  include_dirs = [
+    "${common_path}/include",
+    "${services_path}/screenclient/include",
+  ]
+
+  fuzz_config_file = "${distributedscreen_path}/test/fuzztest/screen_fuzzer"
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+    "-Wno-c99-designator",
+  ]
+
+  sources = [
+    "screen_fuzzer.cpp",
+  ]
+
+  deps = [
+    "${distributedscreen_path}/services/screenclient:distributed_screen_client",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "distributed_hardware_fwk:distributedhardwareutils",
+    "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
+    "graphic_2d:GLESv3",
+    "graphic_2d:libcomposer",
+    "graphic_2d:libgraphic_utils",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
+    "window_manager:libwm",
+  ]
+
+  defines = [
+    "HI_LOG_ENABLE",
+    "DH_LOG_TAG=\"ScreenFuzzTest\"",
+    "LOG_DOMAIN=0xD004140",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":ScreenFuzzTest",
+  ]
+}
+###############################################################################

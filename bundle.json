@@ -94,7 +94,18 @@
                 "//foundation/distributedhardware/distributed_screen/screenhandler/test/fuzztest:fuzztest",
                 "//foundation/distributedhardware/distributed_screen/services/softbusadapter/test/fuzztest:fuzztest",
                 "//foundation/distributedhardware/distributed_screen/interfaces/innerkits/native_cpp/test/fuzztest:fuzztest",
-                "//foundation/distributedhardware/distributed_screen/services/screenservice/test/fuzztest:fuzztest"
+                "//foundation/distributedhardware/distributed_screen/services/screenservice/test/fuzztest:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/screen_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/databuffer_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/dscreenhidumper_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/dscreenjsonutil_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/dscreenmaprelation_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/dscreenutil_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/screendatachanneljson_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/screendecisioncenter_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/screenhandlerstate_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/softbuspermission_fuzzer:fuzztest",
+                "//foundation/distributedhardware/distributed_screen/test/fuzztest/videoparam_fuzzer:fuzztest"
             ]
         }
     }
